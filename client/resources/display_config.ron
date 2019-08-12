@@ -1,0 +1,4 @@
+(
+  title: "Rustown",
+  dimensions: Some((800, 600)),
+)

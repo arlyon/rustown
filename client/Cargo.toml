@@ -1,0 +1,18 @@
+[package]
+name = "rustown-client"
+version = "0.1.0"
+authors = ["Alexander Lyon"]
+edition = "2018"
+
+[dependencies]
+amethyst = { version =  "0.12", features = ["nightly"] }
+log = { version = "0.4", features = ["serde"] }
+rand = "0.7"
+rand_distr = "0.2"
+
+[features]
+default = ["metal"]
+empty = ["amethyst/empty"]
+metal = ["amethyst/metal"]
+vulkan = ["amethyst/vulkan"]
+nightly = ["amethyst/nightly"]
