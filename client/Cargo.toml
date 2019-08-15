@@ -11,8 +11,10 @@ rand = "0.7"
 rand_distr = "0.2"
 
 [features]
-default = ["metal"]
+default = ["metal", "nightly"]
 empty = ["amethyst/empty"]
 metal = ["amethyst/metal"]
 vulkan = ["amethyst/vulkan"]
 nightly = ["amethyst/nightly"]
+profiler = ["amethyst/profiler"]
+test = ["amethyst/test-support"]
