@@ -4,8 +4,10 @@ mod components;
 mod states;
 mod systems;
 mod util;
+mod sound;
 
 use amethyst::{
+    audio::{AudioBundle, DjSystem},
     core::transform::TransformBundle,
     input::{InputBundle, StringBindings},
     prelude::*,
@@ -44,7 +46,9 @@ fn main() -> amethyst::Result<()> {
         )?
         .with_bundle(input_bundle)?
         .with_bundle(FpsCounterBundle {})?
+        .with_bundle(AudioBundle::default())?
         .with_bundle(UiBundle::<StringBindings>::new())?
+        .with(DjSystem::new(|music: &mut sound::Music| music.music.next()), "dj_system", &[])
         .with(systems::PlayerMovementSystem, "movement_system", &[])
         .with(systems::PlayerHealthSystem, "health_system", &[])
         .with(systems::PlayerControlSystem, "control_system", &[])

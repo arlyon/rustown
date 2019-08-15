@@ -11,6 +11,7 @@ use std::default;
 use crate::components;
 use crate::systems;
 use crate::util;
+use crate::sound;
 
 pub struct PausedState {
     target: Option<systems::Target>,
@@ -75,6 +76,7 @@ impl SimpleState for GameplayState {
         // add components
         world.register::<components::Player>();
 
+        sound::init_audio(world);
         util::init_camera(world, &dimensions);
         util::init_ui(world);
 
