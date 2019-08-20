@@ -17,9 +17,9 @@
 //! start and stop to keep the music interesting.
 
 use amethyst::{
-    assets::{Loader},
-    audio::{WavFormat, SourceHandle},
-    ecs::{World},
+    assets::Loader,
+    audio::{SourceHandle, WavFormat},
+    ecs::World,
 };
 use std::{iter::Cycle, vec::IntoIter};
 

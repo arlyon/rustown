@@ -9,37 +9,27 @@ use amethyst::{
 use std::default;
 
 use crate::components;
+use crate::sound;
 use crate::systems;
 use crate::util;
-use crate::sound;
 
 pub struct PausedState {
-    target: Option<systems::Target>,
+    target: Option<systems::util::Target>,
 }
 
 impl default::Default for PausedState {
     fn default() -> Self {
-        PausedState{
-            target: None,
-        }
+        PausedState { target: None }
     }
 }
 
-
 impl SimpleState for PausedState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let mut writer = data.world.write_resource::<systems::PlayerMovementTarget>();
-        self.target = Some(writer.target);
-        writer.target = systems::Target::None;
+        println!("Menu opened");
     }
 
     fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let mut writer = data.world.write_resource::<systems::PlayerMovementTarget>();
-        if let Some(target) = self.target {
-            writer.target = target;
-        }
-
-        self.target = None;
+        println!("Menu closed");
     }
 
     fn handle_event(
@@ -74,18 +64,26 @@ impl SimpleState for GameplayState {
         let dimensions = world.read_resource::<ScreenDimensions>().clone();
 
         // add components
-        world.register::<components::Player>();
+        world.register::<components::Actor>();
+        world.register::<components::Position>();
 
+        // init world
         sound::init_audio(world);
-        util::init_camera(world, &dimensions);
         util::init_ui(world);
 
         // Init entities
         let tex = util::load_sprites(world);
         let player = util::init_players(world, &tex);
-        world.add_resource(systems::PlayerMovementTarget {
-            target: systems::Target::Entity(player),
+        let camera = util::init_camera(world, &dimensions);
+
+        world.add_resource(systems::actor_movement::ActorAITarget {
+            target: systems::util::Target::Entity(player),
         });
+
+        world.add_resource(systems::world::CameraTarget {
+            camera: Some(camera),
+            target: systems::util::Target::Entity(player),
+        })
     }
 
     fn handle_event(

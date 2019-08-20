@@ -1,7 +1,8 @@
 use amethyst::{
-    core::math::{Vector3},
     assets::{AssetStorage, Loader},
+    core::math::Vector3,
     core::transform::Transform,
+    ecs::Entity,
     prelude::*,
     renderer::{
         formats::texture::ImageFormat,
@@ -13,10 +14,11 @@ use amethyst::{
 };
 
 use crate::components;
+use crate::systems;
 
 /// Center the camera in the middle of the screen, and let it cover
 /// the entire screen
-pub fn init_camera(world: &mut World, dimensions: &ScreenDimensions) {
+pub fn init_camera(world: &mut World, dimensions: &ScreenDimensions) -> Entity {
     let mut transform = Transform::default();
     transform.set_translation_xyz(0.0, 0.0, 100.0);
 
@@ -24,7 +26,7 @@ pub fn init_camera(world: &mut World, dimensions: &ScreenDimensions) {
         .create_entity()
         .with(Camera::standard_2d(dimensions.width(), dimensions.height()))
         .with(transform)
-        .build();
+        .build()
 }
 
 pub fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
@@ -66,23 +68,9 @@ pub fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
         .collect()
 }
 
-pub fn init_players(
-    world: &mut World,
-    sprites: &[SpriteRender],
-) -> amethyst::ecs::Entity {
+pub fn init_players(world: &mut World, sprites: &[SpriteRender]) -> amethyst::ecs::Entity {
     use rand_distr::{Distribution, Normal};
     let normal = Normal::new(0.8, 0.1).unwrap();
-
-    for x in -10..=10 {
-        for y in -10..=10 {
-            world
-                .create_entity()
-                .with(sprites[0].clone())
-                .with(Transform::default())
-                .with(components::Position{pos: Vector3::new(x as f32,y as f32,-1.0)})
-                .build();
-        }
-    }
 
     for x in -2..2 {
         for y in -2..2 {
@@ -90,8 +78,10 @@ pub fn init_players(
                 .create_entity()
                 .with(sprites[2].clone())
                 .with(Transform::default())
-                .with(components::Position{pos: Vector3::new(x as f32,y as f32,0.0)})
-                .with(components::Player {
+                .with(components::Position {
+                    pos: Vector3::new(x as f32, y as f32, 0.0),
+                })
+                .with(components::Actor {
                     health: 100,
                     speed: normal.sample(&mut rand::thread_rng()),
                 })
@@ -103,8 +93,10 @@ pub fn init_players(
         .create_entity()
         .with(sprites[1].clone())
         .with(Transform::default())
-        .with(components::Position{pos: Vector3::new(0.0, 0.0, 0.0)})
-        .with(components::Player {
+        .with(components::Position {
+            pos: Vector3::new(0.0, 0.0, 0.0),
+        })
+        .with(components::Actor {
             health: 100,
             speed: 2.0,
         })
@@ -146,5 +138,5 @@ pub fn init_ui(world: &mut World) {
         .with(ui_text)
         .build();
 
-    world.add_resource(components::Interface { fps })
+    world.add_resource(systems::ui::Interface { fps_counter: fps })
 }
