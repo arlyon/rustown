@@ -1,4 +1,4 @@
-// handles game state
+//! Handles game state
 
 use amethyst::{
     input::{is_close_requested, is_key_down, VirtualKeyCode},
@@ -82,7 +82,7 @@ impl SimpleState for GameplayState {
 
         // Init entities
         let tex = util::load_sprites(world);
-        let player = util::init_players(world, &dimensions, &tex);
+        let player = util::init_players(world, &tex);
         world.add_resource(systems::PlayerMovementTarget {
             target: systems::Target::Entity(player),
         });

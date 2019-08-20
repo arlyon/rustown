@@ -1,7 +1,10 @@
 // contains the components for players and inventory
 
 use amethyst::ecs::{Component, Entity, VecStorage};
+use amethyst::core::math::Vector3;
 
+/// A component that tracks the state of
+/// a player.
 #[derive(Debug)]
 pub struct Player {
     pub health: u32,
@@ -12,6 +15,17 @@ impl Component for Player {
     type Storage = VecStorage<Self>;
 }
 
+#[derive(Debug,Copy,Clone)]
+pub struct Position {
+    pub pos: Vector3<f32>,
+}
+
+impl Component for Position {
+    type Storage = VecStorage<Self>;
+}
+
+/// A component that tracks the state of
+/// the interface.
 #[derive(Debug)]
 pub struct Interface {
     pub fps: Entity,

@@ -1,4 +1,5 @@
 use amethyst::{
+    core::math::{Vector3},
     assets::{AssetStorage, Loader},
     core::transform::Transform,
     prelude::*,
@@ -17,7 +18,7 @@ use crate::components;
 /// the entire screen
 pub fn init_camera(world: &mut World, dimensions: &ScreenDimensions) {
     let mut transform = Transform::default();
-    transform.set_translation_xyz(dimensions.width() * 0.5, dimensions.height() * 0.5, 100.0);
+    transform.set_translation_xyz(0.0, 0.0, 100.0);
 
     world
         .create_entity()
@@ -67,36 +68,29 @@ pub fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
 
 pub fn init_players(
     world: &mut World,
-    dimensions: &ScreenDimensions,
     sprites: &[SpriteRender],
 ) -> amethyst::ecs::Entity {
-    for x in (1..1000).step_by(32) {
-        for y in (1..1000).step_by(32) {
-            let mut transform = Transform::default();
-            transform.set_translation_xyz(x as f32, y as f32, 0.0);
+    use rand_distr::{Distribution, Normal};
+    let normal = Normal::new(0.8, 0.1).unwrap();
+
+    for x in -10..=10 {
+        for y in -10..=10 {
             world
                 .create_entity()
                 .with(sprites[0].clone())
-                .with(transform)
+                .with(Transform::default())
+                .with(components::Position{pos: Vector3::new(x as f32,y as f32,-1.0)})
                 .build();
         }
     }
 
-    use rand_distr::{Distribution, Normal};
-    let normal = Normal::new(0.8, 0.1).unwrap();
-
     for x in -2..2 {
         for y in -2..2 {
-            let mut transform = Transform::default();
-            transform.set_translation_xyz(
-                dimensions.height() * 0.5 + (x * 20) as f32,
-                dimensions.width() * 0.5 + (y * 20) as f32,
-                1.0,
-            );
             world
                 .create_entity()
                 .with(sprites[2].clone())
-                .with(transform)
+                .with(Transform::default())
+                .with(components::Position{pos: Vector3::new(x as f32,y as f32,0.0)})
                 .with(components::Player {
                     health: 100,
                     speed: normal.sample(&mut rand::thread_rng()),
@@ -105,12 +99,11 @@ pub fn init_players(
         }
     }
 
-    let mut transform = Transform::default();
-    transform.set_translation_xyz(200.0, 200.0, 1.0);
     world
         .create_entity()
         .with(sprites[1].clone())
-        .with(transform)
+        .with(Transform::default())
+        .with(components::Position{pos: Vector3::new(0.0, 0.0, 0.0)})
         .with(components::Player {
             health: 100,
             speed: 2.0,
