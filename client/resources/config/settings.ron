@@ -1,3 +1,4 @@
 (
-    render_distance: 100,
+    render_distance: 10,
+    seed: "deadbeef",
 )

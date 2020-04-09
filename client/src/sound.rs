@@ -16,12 +16,14 @@
 //! The core theme will have a number of tracks that
 //! start and stop to keep the music interesting.
 
+use std::{iter::Cycle, vec::IntoIter};
+
+use amethyst::prelude::WorldExt;
 use amethyst::{
     assets::Loader,
     audio::{SourceHandle, WavFormat},
     ecs::World,
 };
-use std::{iter::Cycle, vec::IntoIter};
 
 pub struct Music {
     pub music: Cycle<IntoIter<SourceHandle>>,
@@ -51,5 +53,5 @@ pub fn init_audio(world: &mut World) {
 
     //  We have to do this in another scope because world won't let
     // us insert new resources as long as `Loader` is borrowed.
-    world.add_resource(music)
+    world.insert(music)
 }

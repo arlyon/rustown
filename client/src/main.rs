@@ -1,14 +1,7 @@
 //! Bootstraps the game and runs it
 
-pub mod components;
-pub mod resource;
-pub mod sound;
-pub mod states;
-pub mod systems;
-pub mod util;
-
 use amethyst::{
-    audio::{AudioBundle, DjSystem},
+    audio::AudioBundle,
     core::transform::TransformBundle,
     input::{InputBundle, StringBindings},
     prelude::*,
@@ -22,20 +15,18 @@ use amethyst::{
     LoggerConfig,
 };
 
-use serde::{Deserialize, Serialize};
+use crate::bundle::GameBundle;
+use crate::config::Settings;
 
-#[derive(Debug, Deserialize, Serialize)]
-struct DisplayConfig {
-    pub render_distance: u16,
-}
-
-impl Default for DisplayConfig {
-    fn default() -> Self {
-        DisplayConfig {
-            render_distance: 20,
-        }
-    }
-}
+mod bundle;
+mod components;
+mod config;
+mod events;
+mod resource;
+mod sound;
+mod states;
+mod systems;
+mod util;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(LoggerConfig::default());
@@ -43,43 +34,35 @@ fn main() -> amethyst::Result<()> {
     let app_root = application_root_dir()?;
 
     let resources = app_root.join("resources");
-    let display_config = resources.join("config/display.ron");
+    let display_path = resources.join("config/display.ron");
     let binding_path = resources.join("config/input.ron");
-    let settings = resources.join("config/settings.ron");
+    let settings_path = resources.join("config/settings.ron");
+    let settings = Settings::load(&settings_path)?;
 
     let input_bundle =
         InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
 
+    let render_bundle = RenderingBundle::<DefaultBackend>::new()
+        .with_plugin(
+            RenderToWindow::from_config_path(display_path)?.with_clear([0.34, 0.36, 0.52, 1.0]),
+        )
+        .with_plugin(RenderUi::default())
+        .with_plugin(RenderFlat2D::default());
+
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
-        .with_bundle(
-            RenderingBundle::<DefaultBackend>::new()
-                .with_plugin(
-                    RenderToWindow::from_config_path(display_config)
-                        .with_clear([0.34, 0.36, 0.52, 1.0]),
-                )
-                .with_plugin(RenderUi::default())
-                .with_plugin(RenderFlat2D::default()),
-        )?
+        .with_bundle(render_bundle)?
         .with_bundle(input_bundle)?
-        .with_bundle(FpsCounterBundle {})?
+        .with_bundle(FpsCounterBundle)?
         .with_bundle(AudioBundle::default())?
         .with_bundle(UiBundle::<StringBindings>::new())?
-        .with(systems::UiSystem, "ui_system", &[])
-        .with(
-            DjSystem::new(|music: &mut sound::Music| music.music.next()),
-            "dj_system",
-            &[],
-        )
-        .with(systems::ActorMovementSystem, "movement_system", &[])
-        .with(systems::ActorHealthSystem, "health_system", &[])
-        .with(systems::PlayerControlSystem, "control_system", &[])
-        .with(
-            systems::WorldRenderSystem { zoom: 1.0 },
-            "world_render_system",
-            &[],
-        );
-    let mut game = Application::new(resources, states::GameplayState, game_data)?;
+        .with_bundle(GameBundle)?;
+
+    let mut game: CoreApplication<GameData> =
+        ApplicationBuilder::new(resources, states::PlayState::default())?
+            .with_resource(settings)
+            .build(game_data)?;
+
     game.run();
 
     Ok(())

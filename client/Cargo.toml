@@ -1,22 +1,23 @@
 [package]
 name = "rustown-client"
+description = "The client for rusttown!"
 version = "0.1.0"
 authors = ["Alexander Lyon"]
 edition = "2018"
 
 [dependencies]
-amethyst = { version =  "0.12", features = ["nightly"] }
+amethyst = "0.15"
 log = { version = "0.4", features = ["serde"] }
 rand = "0.7"
 rand_distr = "0.2"
 serde = "1"
 shrev = "1"
+noise = "0.5"
 
 [features]
-default = ["metal", "nightly"]
+default = ["metal"]
 empty = ["amethyst/empty"]
 metal = ["amethyst/metal"]
 vulkan = ["amethyst/vulkan"]
-nightly = ["amethyst/nightly"]
 profiler = ["amethyst/profiler"]
 test = ["amethyst/test-support"]

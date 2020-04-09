@@ -1,13 +1,15 @@
-pub mod actor_health;
-pub mod actor_movement;
-pub mod control;
-pub mod ui;
-pub mod util;
-pub mod world;
+pub use actor::control::PlayerControlSystem;
+pub use actor::health::ActorHealthSystem;
+pub use actor::movement::ActorMovementSystem;
+pub use camera::CameraControlSystem;
+pub use render::{actor::ActorRenderSystem, world::WorldRenderSystem};
+pub use ui::{Interface, UiSystem};
+pub use world::gen::WorldGenerationSystem;
 
-pub use actor_health::ActorHealthSystem;
-pub use actor_movement::ActorMovementSystem;
-pub use control::PlayerControlSystem;
-pub use ui::UiSystem;
-pub use world::WorldGenerationSystem;
-pub use world::WorldRenderSystem;
+mod actor;
+mod camera;
+mod render;
+mod ui;
+mod world;
+
+pub mod util;

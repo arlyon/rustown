@@ -1,13 +1,13 @@
+use std::default;
+
 use amethyst::{
     core::math::Vector3,
     core::timing::Time,
     ecs::{Join, Read, ReadStorage, System, WriteStorage},
 };
 
-use std::default;
-
-use super::util;
 use crate::components;
+use crate::systems::util;
 
 /// A target to move to.
 #[derive(Debug)]
@@ -25,10 +25,11 @@ impl default::Default for ActorAITarget {
 
 /// Handles the movement of the actors in the game.
 pub struct ActorMovementSystem;
+
 impl<'a> System<'a> for ActorMovementSystem {
     type SystemData = (
         WriteStorage<'a, components::Position>,
-        ReadStorage<'a, components::Actor>,
+        ReadStorage<'a, components::Living>,
         Read<'a, ActorAITarget>,
         Read<'a, Time>,
     );
@@ -36,8 +37,8 @@ impl<'a> System<'a> for ActorMovementSystem {
     // all the non-player entities move toward the player.
     fn run(&mut self, (mut positions, players, target, time): Self::SystemData) {
         let target_transform = match &target.target {
-            util::Target::Position(p) => Some(p.pos),
-            util::Target::Entity(e) => positions.get(*e).map(|p| p.pos),
+            util::Target::Position(p) => Some(p.trans),
+            util::Target::Entity(e, _) => positions.get(*e).map(|p| p.trans),
             util::Target::None => None,
         };
 
@@ -48,11 +49,12 @@ impl<'a> System<'a> for ActorMovementSystem {
         };
 
         for (player, player_position) in (&players, &mut positions).join() {
-            let direction: Vector3<f32> = target_transform - player_position.pos;
+            let direction: Vector3<f32> = target_transform - player_position.trans;
             if direction.magnitude() < 0.1 {
                 continue;
             };
-            player_position.pos += direction.normalize() * player.speed * time.delta_real_seconds();
+            player_position.trans +=
+                direction.normalize() * player.speed * time.delta_real_seconds();
         }
     }
 }

@@ -9,9 +9,10 @@ use crate::components;
 
 /// Handles the controls for the players in the game.
 pub struct PlayerControlSystem;
+
 impl<'a> System<'a> for PlayerControlSystem {
     type SystemData = (
-        ReadStorage<'a, components::Actor>,
+        ReadStorage<'a, components::Living>,
         ReadStorage<'a, components::markers::Controllable>,
         WriteStorage<'a, components::Position>,
         Read<'a, InputHandler<StringBindings>>,
@@ -30,7 +31,7 @@ impl<'a> System<'a> for PlayerControlSystem {
                 continue;
             };
 
-            position.pos += direction.normalize() * player.speed * time.delta_real_seconds();
+            position.trans += direction.normalize() * player.speed * time.delta_real_seconds();
         }
     }
 }
